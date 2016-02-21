@@ -1,3 +1,6 @@
+import os
+
+
 def pytest_configure():
     from django.conf import settings
 
@@ -6,7 +9,8 @@ def pytest_configure():
         DATABASES={
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:'
+                'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
+                'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
             }
         },
         SITE_ID=1,
@@ -34,6 +38,7 @@ def pytest_configure():
             'django.contrib.messages',
             'django.contrib.staticfiles',
             'rest_framework.authtoken',
+            'rest_framework_services_auth',
             'social.apps.django_app.default',
             'tests',
         ),

@@ -25,7 +25,8 @@ author_email = 'dxiao@katapal.com'
 license = 'MIT'
 install_requires = [
     'python-social-auth>=0.2.14',
-    'djangorestframework>=3.3.2'
+    'djangorestframework>=3.3.2',
+    'djangorestframework-jwt>=1.7.2'
 ]
 
 
@@ -93,7 +94,7 @@ setup(
     package_data=get_package_data(package),
     install_requires=install_requires,
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 1 - Planning',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
@@ -102,9 +103,6 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Topic :: Internet :: WWW/HTTP',
     ]
 )
