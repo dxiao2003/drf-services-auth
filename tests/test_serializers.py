@@ -26,6 +26,12 @@ def patch_backend(f=None, **kwargs):
     test_username = kwargs.get('username', DEFAULT_USERNAME)
     test_email = kwargs.get('email', DEFAULT_EMAIL)
 
+    if kwargs.get('user', None):
+        test_user = kwargs['user']
+    else:
+        test_user = \
+            User.objects.create(username=test_username, email=test_email)
+
     def decorator(func):
         @patch('rest_framework_services_auth.serializers.load_strategy')
         @patch('rest_framework_services_auth.serializers.load_backend')
@@ -37,8 +43,7 @@ def patch_backend(f=None, **kwargs):
             load_strategy_mock.return_value = "test strategy"
             backend_mock = MagicMock()
             load_backend_mock.return_value = backend_mock
-            backend_mock.auth_complete.return_value = \
-                User.objects.create(username=test_username, email=test_email)
+            backend_mock.auth_complete.return_value = test_user
             r = func(*arg_array, **kwargs)
             load_backend_mock.assert_called_with(
                 "test strategy",

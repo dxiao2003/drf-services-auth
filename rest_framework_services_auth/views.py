@@ -4,14 +4,16 @@ from __future__ import unicode_literals
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_services_auth.serializers import SocialTokenSerializer
 
 
-class JSONWebTokenAPIView(APIView):
+class SocialTokenAPIView(APIView):
     """
     Base API View that various JWT interactions inherit from.
     """
     permission_classes = ()
     authentication_classes = ()
+    serializer_class = SocialTokenSerializer
 
     def get_serializer_context(self):
         """
@@ -49,6 +51,8 @@ class JSONWebTokenAPIView(APIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            return Response(data=serializer.validated_data)
+            data = serializer.validated_data
+            data.pop('user')
+            return Response(data=data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
