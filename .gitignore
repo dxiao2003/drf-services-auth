@@ -1,0 +1,6 @@
+venv/
+.cache
+.idea/
+dist/
+*.egg-info/
+*.pyc
