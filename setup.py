@@ -24,7 +24,6 @@ author = 'David Xiao'
 author_email = 'dxiao@katapal.com'
 license = 'MIT'
 install_requires = [
-    'python-social-auth>=0.2.14',
     'djangorestframework>=3.3.2',
     'djangorestframework-jwt>=1.7.2'
 ]

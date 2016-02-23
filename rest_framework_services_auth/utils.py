@@ -26,3 +26,4 @@ def jwt_dynamic_user_payload_handler(user):
     payload = jwt_payload_handler(user)
     payload['dynamic_user_id'] = str(user.dynamic_user.id)
     return payload
+d
