@@ -48,7 +48,7 @@ def pytest_configure():
         JWT_ALGORITHM='HS256',
         JWT_AUDIENCE='audience',
         JWT_ISSUER='issuer',
-        JWT_AUTH_HEADER_PREFIX = 'JWT'
+        JWT_AUTH_HEADER_PREFIX='JWT'
     )
 
     try:

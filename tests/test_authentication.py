@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.conf.urls import patterns
 from django.contrib.auth import get_user_model
@@ -18,10 +20,11 @@ User = get_user_model()
 factory = APIRequestFactory()
 
 DEFAULT_TARGET = {
-    'SECRET_KEY': settings.JWT_VERIFICATION_KEY, # assume a sym key for test
+    'SECRET_KEY': settings.JWT_VERIFICATION_KEY,  # assume a sym key for test
     'ALGORITHM': settings.JWT_ALGORITHM,
     'AUDIENCE': settings.JWT_AUDIENCE
 }
+
 
 class MockView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -198,6 +201,29 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
         self.assertEqual(response.data['detail'], msg)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
+
+    def test_post_invalid_token_failing_jwt_auth_max_interval(self):
+        """
+        Ensure POSTing over JWT auth with invalid token fails
+        """
+        settings.JWT_MAX_VALID_INTERVAL = 1
+        token = jwt_encode_user(
+            self.user,
+            DEFAULT_TARGET,
+            override={'exp': datetime.utcnow() + timedelta(1)}
+        )
+
+        auth = 'JWT {0}'.format(token)
+        response = self.csrf_client.post(
+            '/jwt/', {'example': 'example'},
+            HTTP_AUTHORIZATION=auth, format='json')
+
+        msg = 'Incorrect authentication credentials.'
+
+        self.assertTrue(response.data['detail'].startswith(msg))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
+        settings.JWT_MAX_VALID_INTERVAL = 24 * 60 * 60 * 1000
 
     def test_post_form_passing_jwt_invalid_payload(self):
         """

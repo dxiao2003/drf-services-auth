@@ -25,7 +25,6 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
     """
     www_authenticate_realm = getattr(settings, 'JWT_REALM', 'api')
 
-
     def authenticate(self, request):
         """
         Returns a two-tuple of `User` and token if a valid signature has been
@@ -78,7 +77,6 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
             self.www_authenticate_realm
         )
 
-
     def authenticate_credentials(self, payload):
         """
         Returns an active user that matches the payload's user id and email.
@@ -102,4 +100,3 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
 
         return user
-

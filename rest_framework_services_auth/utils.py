@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 
 import jwt
+from jwt.exceptions import InvalidTokenError
 from django.conf import settings
 
 '''
@@ -18,12 +19,16 @@ def JSONEncoder_newdefault(self, o):
         return str(o)
     return JSONEncoder_olddefault(self, o)
 
+
 JSONEncoder.default = JSONEncoder_newdefault
 
-DEFAULT_EXPIRATION_DELAY = timedelta(15 * 60 * 1000) # 15 minutes
+
+DEFAULT_EXPIRATION_DELAY = timedelta(seconds=15 * 60)  # 15 minutes
+
 
 def jwt_encode_user(user, target, *args, **kwargs):
     return jwt_encode_uid(user.dynamic_user.id, target, *args, **kwargs)
+
 
 def jwt_encode_uid(uid, target, *args, **kwargs):
     if 'SECRET_KEY' not in target:
@@ -40,6 +45,8 @@ def jwt_encode_uid(uid, target, *args, **kwargs):
     payload = {
         'uid': str(uid),
         'exp': datetime.utcnow() + expiration_delay,
+        'nbf': datetime.utcnow(),
+        'iat': datetime.utcnow(),
         'iss': settings.JWT_ISSUER,
         'aud': target['AUDIENCE']
     }
@@ -52,16 +59,20 @@ def jwt_encode_uid(uid, target, *args, **kwargs):
         target['ALGORITHM']
     )
 
+
 DEFAULT_LEEWAY = 5000
+
 
 def jwt_decode_token(token):
     options = {
         'verify_exp': True,
         'verify_iss': True,
-        'verify_aud': True
+        'verify_aud': True,
+        'verify_nbf': True,
+        'verify_iat': True
     }
 
-    return jwt.decode(
+    payload = jwt.decode(
         token,
         settings.JWT_VERIFICATION_KEY,
         options=options,
@@ -70,3 +81,30 @@ def jwt_decode_token(token):
         issuer=settings.JWT_ISSUER,
         algorithms=[settings.JWT_ALGORITHM]
     )
+
+    if (hasattr(settings, 'JWT_MAX_VALID_INTERVAL')):
+
+        exp = int(payload['exp'])
+        nbf = int(payload['nbf'])
+
+        if (exp - nbf > int(settings.JWT_MAX_VALID_INTERVAL)):
+            raise ValidIntervalError(exp,
+                                     nbf,
+                                     settings.JWT_MAX_VALID_INTERVAL)
+    return payload
+
+
+class ValidIntervalError(InvalidTokenError):
+    def __init__(self, exp, nbf, max_valid_interval, *args, **kwargs):
+        self.exp = exp
+        self.nbf = nbf
+        self.max_valid_interval = max_valid_interval
+
+    def __str__(self):
+        return "Valid interval of token too long: " +  \
+               "(Starts at %s and ending at %s) " % (
+                   datetime.utcfromtimestamp(self.nbf),
+                   datetime.utcfromtimestamp(self.exp),
+               ) + "Max interval length is %s" % (
+                   timedelta(seconds=self.max_valid_interval)
+               )
