@@ -39,12 +39,16 @@ def pytest_configure():
             'django.contrib.staticfiles',
             'rest_framework.authtoken',
             'rest_framework_services_auth',
-            'social.apps.django_app.default',
             'tests',
         ),
         PASSWORD_HASHERS=(
             'django.contrib.auth.hashers.MD5PasswordHasher',
         ),
+        JWT_VERIFICATION_KEY='verificationkey',
+        JWT_ALGORITHM='HS256',
+        JWT_AUDIENCE='audience',
+        JWT_ISSUER='issuer',
+        JWT_AUTH_HEADER_PREFIX = 'JWT'
     )
 
     try:

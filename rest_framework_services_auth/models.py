@@ -24,4 +24,5 @@ class DynamicUserMixin(models.Model):
 
 
 class DynamicUser(DynamicUserMixin):
-    pass
+    class Meta:
+        app_label = 'rest_framework_services_auth'

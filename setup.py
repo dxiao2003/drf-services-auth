@@ -25,7 +25,7 @@ author_email = 'dxiao@katapal.com'
 license = 'MIT'
 install_requires = [
     'djangorestframework>=3.3.2',
-    'djangorestframework-jwt>=1.7.2'
+    'PyJWT>=1.4.0'
 ]
 
 
