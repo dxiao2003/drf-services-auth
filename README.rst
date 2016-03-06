@@ -1,4 +1,4 @@
-# coding=utf-8
+.. coding=utf-8
 
 Authentication tools for micro-services in Djanto REST Framework
 ================================================================

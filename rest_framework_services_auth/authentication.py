@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import jwt
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.encoding import smart_text
 from rest_framework import exceptions
@@ -12,6 +11,7 @@ from rest_framework_services_auth.models import DynamicUser
 
 from django.utils.translation import ugettext as _
 from django.db import transaction
+from rest_framework_services_auth.settings import auth_settings
 from rest_framework_services_auth.utils import jwt_decode_token
 
 
@@ -23,7 +23,7 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
 
         Authorization: JWT eyJhbGciOiAiSFMyNTYiLCAidHlwIj
     """
-    www_authenticate_realm = getattr(settings, 'JWT_REALM', 'api')
+    www_authenticate_realm = getattr(auth_settings, 'JWT_REALM', 'api')
 
     def authenticate(self, request):
         """
@@ -51,7 +51,7 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
 
     def get_jwt_value(self, request):
         auth = get_authorization_header(request).split()
-        auth_header_prefix = settings.JWT_AUTH_HEADER_PREFIX.lower()
+        auth_header_prefix = auth_settings.JWT_AUTH_HEADER_PREFIX.lower()
 
         if not auth or smart_text(auth[0].lower()) != auth_header_prefix:
             return None
@@ -73,7 +73,7 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
         authentication scheme should return `403 Permission Denied` responses.
         """
         return '{0} realm="{1}"'.format(
-            settings.JWT_AUTH_HEADER_PREFIX,
+            auth_settings.JWT_AUTH_HEADER_PREFIX,
             self.www_authenticate_realm
         )
 

@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from datetime import datetime, timedelta
 
-from django.conf import settings
+
 from django.conf.urls import patterns
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from rest_framework_services_auth.authentication import \
     DynamicJSONWebTokenAuthentication
 from rest_framework_services_auth.models import DynamicUser
+from rest_framework_services_auth.settings import auth_settings
 from rest_framework_services_auth.utils import jwt_encode_user, jwt_encode_uid
 
 User = get_user_model()
@@ -20,9 +21,9 @@ User = get_user_model()
 factory = APIRequestFactory()
 
 DEFAULT_TARGET = {
-    'SECRET_KEY': settings.JWT_VERIFICATION_KEY,  # assume a sym key for test
-    'ALGORITHM': settings.JWT_ALGORITHM,
-    'AUDIENCE': settings.JWT_AUDIENCE
+    'SECRET_KEY': auth_settings.JWT_VERIFICATION_KEY,  # assume a sym key for test
+    'ALGORITHM': auth_settings.JWT_ALGORITHM,
+    'AUDIENCE': auth_settings.JWT_AUDIENCE
 }
 
 
@@ -206,7 +207,7 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
         """
         Ensure POSTing over JWT auth with invalid token fails
         """
-        settings.JWT_MAX_VALID_INTERVAL = 1
+        auth_settings.JWT_MAX_VALID_INTERVAL = 1
         token = jwt_encode_user(
             self.user,
             DEFAULT_TARGET,
@@ -223,7 +224,7 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
         self.assertTrue(response.data['detail'].startswith(msg))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response['WWW-Authenticate'], 'JWT realm="api"')
-        settings.JWT_MAX_VALID_INTERVAL = 24 * 60 * 60 * 1000
+        auth_settings.JWT_MAX_VALID_INTERVAL = 24 * 60 * 60 * 1000
 
     def test_post_form_passing_jwt_invalid_payload(self):
         """
@@ -247,7 +248,7 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
         Ensure using a different setting for `JWT_AUTH_HEADER_PREFIX` and
         with correct credentials passes.
         """
-        settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
+        auth_settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
 
         token = jwt_encode_user(self.user, DEFAULT_TARGET)
 
@@ -258,8 +259,8 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Restore original settings
-        settings.JWT_AUTH_HEADER_PREFIX = 'JWT'
+        # Restore original auth_settings
+        auth_settings.JWT_AUTH_HEADER_PREFIX = 'JWT'
 
     def test_post_form_failing_jwt_auth_different_auth_header_prefix(self):
         """
@@ -267,11 +268,11 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
         POSTing form over JWT auth without correct credentials fails and
         generated correct WWW-Authenticate header
         """
-        settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
+        auth_settings.JWT_AUTH_HEADER_PREFIX = 'Bearer'
 
         response = self.csrf_client.post('/jwt/', {'example': 'example'})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response['WWW-Authenticate'], 'Bearer realm="api"')
 
-        # Restore original settings
-        settings.JWT_AUTH_HEADER_PREFIX = 'JWT'
+        # Restore original auth_settings
+        auth_settings.JWT_AUTH_HEADER_PREFIX = 'JWT'

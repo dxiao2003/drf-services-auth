@@ -44,11 +44,13 @@ def pytest_configure():
         PASSWORD_HASHERS=(
             'django.contrib.auth.hashers.MD5PasswordHasher',
         ),
-        JWT_VERIFICATION_KEY='verificationkey',
-        JWT_ALGORITHM='HS256',
-        JWT_AUDIENCE='audience',
-        JWT_ISSUER='issuer',
-        JWT_AUTH_HEADER_PREFIX='JWT'
+        AUTH_SERVER={
+            'JWT_VERIFICATION_KEY': 'verificationkey',
+            'JWT_ALGORITHM': 'HS256',
+            'JWT_AUDIENCE': 'audience',
+            'JWT_ISSUER': 'issuer',
+            'JWT_AUTH_HEADER_PREFIX': 'JWT'
+        }
     )
 
     try:

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import jwt
 from jwt.exceptions import InvalidTokenError
-from django.conf import settings
+from rest_framework_services_auth.settings import auth_settings
 
 '''
 Dealing with no UUID serialization support in json
@@ -35,10 +35,10 @@ def jwt_encode_uid(uid, target, *args, **kwargs):
         raise ValueError("Must specify target's secret key")
     if 'ALGORITHM' not in target:
         raise ValueError("Must specify target's algorithm")
-    if not hasattr(settings, 'JWT_ISSUER'):
-        raise ValueError("Must specify issuer name")
     if 'AUDIENCE' not in target:
         raise ValueError("Must specify target's audience")
+    if not auth_settings.JWT_ISSUER:
+        raise ValueError("Must specify issuer name")
 
     expiration_delay = target.get('EXPIRATION_DELAY', DEFAULT_EXPIRATION_DELAY)
 
@@ -47,7 +47,7 @@ def jwt_encode_uid(uid, target, *args, **kwargs):
         'exp': datetime.utcnow() + expiration_delay,
         'nbf': datetime.utcnow(),
         'iat': datetime.utcnow(),
-        'iss': settings.JWT_ISSUER,
+        'iss': auth_settings.JWT_ISSUER,
         'aud': target['AUDIENCE']
     }
 
@@ -72,25 +72,28 @@ def jwt_decode_token(token):
         'verify_iat': True
     }
 
+    if not auth_settings.JWT_VERIFICATION_KEY:
+        raise ValueError("Must specify verification key")
+
     payload = jwt.decode(
         token,
-        settings.JWT_VERIFICATION_KEY,
+        auth_settings.JWT_VERIFICATION_KEY,
         options=options,
-        leeway=getattr(settings, 'JWT_LEEWAY', DEFAULT_LEEWAY),
-        audience=settings.JWT_AUDIENCE,
-        issuer=settings.JWT_ISSUER,
-        algorithms=[settings.JWT_ALGORITHM]
+        leeway=getattr(auth_settings, 'JWT_LEEWAY', DEFAULT_LEEWAY),
+        audience=auth_settings.JWT_AUDIENCE,
+        issuer=auth_settings.JWT_ISSUER,
+        algorithms=[auth_settings.JWT_ALGORITHM]
     )
 
-    if (hasattr(settings, 'JWT_MAX_VALID_INTERVAL')):
+    if (hasattr(auth_settings, 'JWT_MAX_VALID_INTERVAL')):
 
         exp = int(payload['exp'])
         nbf = int(payload['nbf'])
 
-        if (exp - nbf > int(settings.JWT_MAX_VALID_INTERVAL)):
+        if (exp - nbf > int(auth_settings.JWT_MAX_VALID_INTERVAL)):
             raise ValidIntervalError(exp,
                                      nbf,
-                                     settings.JWT_MAX_VALID_INTERVAL)
+                                     auth_settings.JWT_MAX_VALID_INTERVAL)
     return payload
 
 
