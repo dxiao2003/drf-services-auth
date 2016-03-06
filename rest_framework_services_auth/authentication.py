@@ -7,12 +7,12 @@ from rest_framework import exceptions
 
 from rest_framework.authentication import BaseAuthentication, \
     get_authorization_header
-from rest_framework_services_auth.models import DynamicUser
 
 from django.utils.translation import ugettext as _
 from django.db import transaction
 from rest_framework_services_auth.settings import auth_settings
-from rest_framework_services_auth.utils import jwt_decode_token
+from rest_framework_services_auth.utils import jwt_decode_token, \
+    get_dynamic_user_model
 
 
 class DynamicJSONWebTokenAuthentication(BaseAuthentication):
@@ -82,6 +82,7 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
         Returns an active user that matches the payload's user id and email.
         """
         User = get_user_model()
+        DynamicUser = get_dynamic_user_model()
         dynamic_user_id = payload.get('uid', None)
 
         if not dynamic_user_id:

@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 
+from django.apps import apps as django_apps
+
 from datetime import datetime, timedelta
 
 import jwt
+from django.core.exceptions import ImproperlyConfigured
 from jwt.exceptions import InvalidTokenError
 from rest_framework_services_auth.settings import auth_settings
 
@@ -111,3 +114,17 @@ class ValidIntervalError(InvalidTokenError):
                ) + "Max interval length is %s" % (
                    timedelta(seconds=self.max_valid_interval)
                )
+
+
+def get_dynamic_user_model():
+    """
+    Returns the User model that is active in this project.
+    """
+    try:
+        return django_apps.get_model(auth_settings.DYNAMIC_USER_MODEL)
+    except ValueError:
+        raise ImproperlyConfigured("DYNAMIC_USER_MODEL must be of the form 'app_label.model_name'")
+    except LookupError:
+        raise ImproperlyConfigured(
+            "DYNAMIC_USER_MODEL refers to model '%s' that has not been installed" % auth_settings.DYNAMIC_USER_MODEL
+        )

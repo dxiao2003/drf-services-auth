@@ -12,7 +12,8 @@ DEFAULT_SETTINGS = {
     'JWT_ALGORITHM': '',
     'JWT_AUDIENCE': '',
     'JWT_ISSUER': '',
-    'JWT_AUTH_HEADER_PREFIX': 'JWT'
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    'DYNAMIC_USER_MODEL': 'rest_framework_services_auth.DynamicUser'
 }
 
 auth_settings = APISettings(
