@@ -11,8 +11,8 @@ from rest_framework import permissions, status
 from rest_framework.test import APIRequestFactory, APIClient, APITestCase
 from rest_framework.views import APIView
 from rest_framework_services_auth.authentication import \
-    DynamicJSONWebTokenAuthentication
-from rest_framework_services_auth.models import DynamicUser
+    ServiceJSONWebTokenAuthentication
+from rest_framework_services_auth.models import ServiceUser
 from rest_framework_services_auth.settings import auth_settings
 from rest_framework_services_auth.utils import jwt_encode_user, jwt_encode_uid
 
@@ -40,11 +40,11 @@ class MockView(APIView):
 urlpatterns = patterns(
     '',
     (r'^jwt/$', MockView.as_view(
-     authentication_classes=[DynamicJSONWebTokenAuthentication])),
+     authentication_classes=[ServiceJSONWebTokenAuthentication])),
 )
 
 
-class DynamicJSONWebTokenAuthenticationTests(APITestCase):
+class ServiceJSONWebTokenAuthenticationTests(APITestCase):
     """JSON Web Token Authentication"""
     urls = 'tests.test_authentication'
 
@@ -53,7 +53,7 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
         self.username = 'jpueblo'
         self.email = 'jpueblo@example.com'
         self.user = User.objects.create_user(self.username, self.email)
-        DynamicUser.objects.create(user=self.user)
+        ServiceUser.objects.create(user=self.user)
 
     def test_post_form_passing_jwt_auth(self):
         """
@@ -67,8 +67,8 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
             '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        user = User.objects.get(dynamic_user__id=self.user.dynamic_user.id)
-        self.assertEqual(user.dynamic_user.id, self.user.dynamic_user.id)
+        user = User.objects.get(service_user__id=self.user.service_user.id)
+        self.assertEqual(user.service_user.id, self.user.service_user.id)
         self.assertEqual(user.username, self.user.username)
 
     def test_post_json_passing_jwt_auth(self):
@@ -84,8 +84,8 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
             HTTP_AUTHORIZATION=auth, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        user = User.objects.get(dynamic_user__id=self.user.dynamic_user.id)
-        self.assertEqual(user.dynamic_user.id, self.user.dynamic_user.id)
+        user = User.objects.get(service_user__id=self.user.service_user.id)
+        self.assertEqual(user.service_user.id, self.user.service_user.id)
         self.assertEqual(user.username, self.user.username)
 
     def test_post_form_passing_jwt_auth_new_user(self):
@@ -101,8 +101,8 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
             '/jwt/', {'example': 'example'}, HTTP_AUTHORIZATION=auth)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        user = User.objects.get(dynamic_user__id=uid)
-        self.assertEqual(str(user.dynamic_user.id), uid)
+        user = User.objects.get(service_user__id=uid)
+        self.assertEqual(str(user.service_user.id), uid)
         self.assertEqual(user.username, str(uid))
 
     def test_post_json_passing_jwt_auth_new_user(self):
@@ -119,8 +119,8 @@ class DynamicJSONWebTokenAuthenticationTests(APITestCase):
             HTTP_AUTHORIZATION=auth, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        user = User.objects.get(dynamic_user__id=uid)
-        self.assertEqual(str(user.dynamic_user.id), uid)
+        user = User.objects.get(service_user__id=uid)
+        self.assertEqual(str(user.service_user.id), uid)
         self.assertEqual(user.username, str(uid))
 
     def test_post_form_failing_jwt_auth(self):

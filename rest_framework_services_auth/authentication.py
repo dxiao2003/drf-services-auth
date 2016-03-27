@@ -10,12 +10,13 @@ from rest_framework.authentication import BaseAuthentication, \
 
 from django.utils.translation import ugettext as _
 from django.db import transaction
+
 from rest_framework_services_auth.settings import auth_settings
 from rest_framework_services_auth.utils import jwt_decode_token, \
-    get_dynamic_user_model
+    get_service_user_model
 
 
-class DynamicJSONWebTokenAuthentication(BaseAuthentication):
+class ServiceJSONWebTokenAuthentication(BaseAuthentication):
     """
     Clients should authenticate by passing the token key in the "Authorization"
     HTTP header, prepended with the string specified in the setting
@@ -82,19 +83,19 @@ class DynamicJSONWebTokenAuthentication(BaseAuthentication):
         Returns an active user that matches the payload's user id and email.
         """
         User = get_user_model()
-        DynamicUser = get_dynamic_user_model()
-        dynamic_user_id = payload.get('uid', None)
+        ServiceUser = get_service_user_model()
+        service_user_id = payload.get('uid', None)
 
-        if not dynamic_user_id:
+        if not service_user_id:
             msg = _('Invalid payload.')
             raise exceptions.AuthenticationFailed(msg)
 
         try:
-            user = User.objects.get(dynamic_user__pk=dynamic_user_id)
+            user = User.objects.get(service_user__pk=service_user_id)
         except User.DoesNotExist:
             with transaction.atomic():
-                user = User.objects.create_user(username=dynamic_user_id)
-                DynamicUser.objects.create(id=dynamic_user_id, user=user)
+                user = User.objects.create_user(username=service_user_id)
+                ServiceUser.objects.create(id=service_user_id, user=user)
 
         if not user.is_active:
             msg = _('User account is disabled.')

@@ -18,10 +18,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='DynamicUser',
+            name='ServiceUser',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='dynamic_user', to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='service_user', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

@@ -30,7 +30,7 @@ DEFAULT_EXPIRATION_DELAY = timedelta(seconds=15 * 60)  # 15 minutes
 
 
 def jwt_encode_user(user, target, *args, **kwargs):
-    return jwt_encode_uid(user.dynamic_user.id, target, *args, **kwargs)
+    return jwt_encode_uid(user.service_user.id, target, *args, **kwargs)
 
 
 def jwt_encode_uid(uid, target, *args, **kwargs):
@@ -116,15 +116,15 @@ class ValidIntervalError(InvalidTokenError):
                )
 
 
-def get_dynamic_user_model():
+def get_service_user_model():
     """
     Returns the User model that is active in this project.
     """
     try:
-        return django_apps.get_model(auth_settings.DYNAMIC_USER_MODEL)
+        return django_apps.get_model(auth_settings.SERVICE_USER_MODEL)
     except ValueError:
-        raise ImproperlyConfigured("DYNAMIC_USER_MODEL must be of the form 'app_label.model_name'")
+        raise ImproperlyConfigured("SERVICE_USER_MODEL must be of the form 'app_label.model_name'")
     except LookupError:
         raise ImproperlyConfigured(
-            "DYNAMIC_USER_MODEL refers to model '%s' that has not been installed" % auth_settings.DYNAMIC_USER_MODEL
+            "SERVICE_USER_MODEL refers to model '%s' that has not been installed" % auth_settings.SERVICE_USER_MODEL
         )

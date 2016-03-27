@@ -10,19 +10,19 @@ AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
 # Create your models here.
-class DynamicUserMixin(models.Model):
+class ServiceUserMixin(models.Model):
     """
     Additional info for the user that allows them to be dynamically created
     when new previously-unknown users are authenticated using JWTs.
     """
 
     id = UUIDField(default=uuid4, primary_key=True)
-    user = models.OneToOneField(AUTH_USER_MODEL, related_name="dynamic_user")
+    user = models.OneToOneField(AUTH_USER_MODEL, related_name="service_user")
 
     class Meta:
         abstract = True
 
 
-class DynamicUser(DynamicUserMixin):
+class ServiceUser(ServiceUserMixin):
     class Meta:
         app_label = 'rest_framework_services_auth'
