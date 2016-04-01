@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import base64
 
 from django.conf import settings as django_settings
 
@@ -21,3 +22,10 @@ auth_settings = APISettings(
     DEFAULT_SETTINGS,
     {'None': None}  # put something non-empty so it's truthy
 )
+
+# try to decode verification from Base64 if possible
+try:
+    auth_settings.JWT_VERIFICATION_KEY = \
+        base64.b64decode(auth_settings.JWT_VERIFICATION_KEY)
+except:
+    pass

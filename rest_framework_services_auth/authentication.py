@@ -91,7 +91,7 @@ class ServiceJSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
 
         try:
-            user = User.objects.get(service_user__pk=service_user_id)
+            user = get_user_model().objects.get(service_user__pk=service_user_id)
         except User.DoesNotExist:
             with transaction.atomic():
                 user = User.objects.create_user(username=service_user_id)
