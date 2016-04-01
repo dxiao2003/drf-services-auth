@@ -33,7 +33,8 @@ def jwt_encode_user(user, target, *args, **kwargs):
     return jwt_encode_uid(user.service_user.id, target, *args, **kwargs)
 
 
-def jwt_encode_uid(uid, target, *args, **kwargs):
+def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
+                   *args, **kwargs):
     if 'SECRET_KEY' not in target:
         raise ValueError("Must specify target's secret key")
     if 'ALGORITHM' not in target:
@@ -43,12 +44,15 @@ def jwt_encode_uid(uid, target, *args, **kwargs):
     if not auth_settings.JWT_ISSUER:
         raise ValueError("Must specify issuer name")
 
-    expiration_delay = target.get('EXPIRATION_DELAY', DEFAULT_EXPIRATION_DELAY)
+    expiration_time = expiration_time or \
+                      datetime.utcnow() + target.get('EXPIRATION_DELAY',
+                                                     DEFAULT_EXPIRATION_DELAY)
+    not_before = not_before or datetime.utcnow()
 
     payload = {
         'uid': str(uid),
-        'exp': datetime.utcnow() + expiration_delay,
-        'nbf': datetime.utcnow(),
+        'exp': expiration_time,
+        'nbf': not_before,
         'iat': datetime.utcnow(),
         'iss': auth_settings.JWT_ISSUER,
         'aud': target['AUDIENCE']

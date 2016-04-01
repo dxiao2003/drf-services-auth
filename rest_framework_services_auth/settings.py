@@ -9,6 +9,7 @@ from rest_framework.settings import APISettings
 USER_SETTINGS = getattr(django_settings, 'AUTH_SERVER', None)
 
 DEFAULT_SETTINGS = {
+    # key must be either in base64 encoding for symmetric or X509 for public-key
     'JWT_VERIFICATION_KEY': '',
     'JWT_ALGORITHM': '',
     'JWT_AUDIENCE': '',
@@ -23,9 +24,7 @@ auth_settings = APISettings(
     {'None': None}  # put something non-empty so it's truthy
 )
 
-# try to decode verification from Base64 if possible
-try:
+if auth_settings.JWT_ALGORITHM.startswith("HS"):
+    # try to decode verification from Base64 if possible
     auth_settings.JWT_VERIFICATION_KEY = \
         base64.b64decode(auth_settings.JWT_VERIFICATION_KEY)
-except:
-    pass
