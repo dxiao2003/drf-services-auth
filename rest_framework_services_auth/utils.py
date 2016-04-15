@@ -26,7 +26,7 @@ def JSONEncoder_newdefault(self, o):
 JSONEncoder.default = JSONEncoder_newdefault
 
 
-DEFAULT_EXPIRATION_DELAY = timedelta(seconds=15 * 60)  # 15 minutes
+DEFAULT_EXPIRATION_DELAY = 15 * 60  # 15 minutes
 
 
 def jwt_encode_user(user, target, *args, **kwargs):
@@ -35,6 +35,7 @@ def jwt_encode_user(user, target, *args, **kwargs):
 
 def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
                    *args, **kwargs):
+    headers = {}
     if 'SECRET_KEY' not in target:
         raise ValueError("Must specify target's secret key")
     if 'ALGORITHM' not in target:
@@ -43,10 +44,16 @@ def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
         raise ValueError("Must specify target's audience")
     if not auth_settings.JWT_ISSUER:
         raise ValueError("Must specify issuer name")
+    if 'KEY_ID' in target:
+        headers['kid'] = target['KEY_ID']
 
-    expiration_time = expiration_time or \
-                      datetime.utcnow() + target.get('EXPIRATION_DELAY',
-                                                     DEFAULT_EXPIRATION_DELAY)
+    expiration_time = (
+        expiration_time or
+        datetime.utcnow() +
+            timedelta(seconds=target.get('EXPIRATION_DELAY',
+                                         DEFAULT_EXPIRATION_DELAY))
+    )
+
     not_before = not_before or datetime.utcnow()
 
     payload = {
@@ -63,7 +70,8 @@ def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
     return jwt.encode(
         payload,
         target['SECRET_KEY'],
-        target['ALGORITHM']
+        target['ALGORITHM'],
+        headers=headers
     )
 
 
