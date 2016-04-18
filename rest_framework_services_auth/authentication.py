@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import base64
-
 import jwt
 from django.contrib.auth import get_user_model
 from django.utils.encoding import smart_text
@@ -15,7 +13,7 @@ from django.db import transaction
 
 from rest_framework_services_auth.settings import auth_settings
 from rest_framework_services_auth.utils import jwt_decode_token, \
-    get_service_user_model
+    get_service_user_model, encode_username
 
 
 class ServiceJSONWebTokenAuthentication(BaseAuthentication):
@@ -96,9 +94,7 @@ class ServiceJSONWebTokenAuthentication(BaseAuthentication):
             user = get_user_model().objects.get(service_user__pk=service_user_id)
         except User.DoesNotExist:
             with transaction.atomic():
-                username = base64.b64encode(
-                    service_user_id.replace('-', '').decode("hex")
-                )
+                username = encode_username(service_user_id)
                 user = User.objects.create_user(username=username)
                 ServiceUser.objects.create(id=service_user_id, user=user)
 

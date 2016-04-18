@@ -14,7 +14,8 @@ from rest_framework_services_auth.authentication import \
     ServiceJSONWebTokenAuthentication
 from rest_framework_services_auth.models import ServiceUser
 from rest_framework_services_auth.settings import auth_settings
-from rest_framework_services_auth.utils import jwt_encode_user, jwt_encode_uid
+from rest_framework_services_auth.utils import jwt_encode_user, jwt_encode_uid, \
+    encode_username
 
 User = get_user_model()
 
@@ -23,7 +24,8 @@ factory = APIRequestFactory()
 DEFAULT_TARGET = {
     'SECRET_KEY': auth_settings.JWT_VERIFICATION_KEY,  # assume a sym key for test
     'ALGORITHM': auth_settings.JWT_ALGORITHM,
-    'AUDIENCE': auth_settings.JWT_AUDIENCE
+    'AUDIENCE': auth_settings.JWT_AUDIENCE,
+    'ISSUER': auth_settings.JWT_ISSUER
 }
 
 
@@ -103,7 +105,7 @@ class ServiceJSONWebTokenAuthenticationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user = User.objects.get(service_user__id=uid)
         self.assertEqual(str(user.service_user.id), uid)
-        self.assertEqual(user.username, str(uid))
+        self.assertEqual(user.username, encode_username(uid))
 
     def test_post_json_passing_jwt_auth_new_user(self):
         """
@@ -121,7 +123,7 @@ class ServiceJSONWebTokenAuthenticationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user = User.objects.get(service_user__id=uid)
         self.assertEqual(str(user.service_user.id), uid)
-        self.assertEqual(user.username, str(uid))
+        self.assertEqual(user.username, encode_username(uid))
 
     def test_post_form_failing_jwt_auth(self):
         """

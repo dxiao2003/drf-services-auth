@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import base64
+
 from django.apps import apps as django_apps
 
 from datetime import datetime, timedelta
@@ -29,6 +31,12 @@ JSONEncoder.default = JSONEncoder_newdefault
 DEFAULT_EXPIRATION_DELAY = 15 * 60  # 15 minutes
 
 
+def encode_username(service_user_id):
+    return base64.b64encode(
+        str(service_user_id).replace('-', '').decode("hex")
+    )
+
+
 def jwt_encode_user(user, target, *args, **kwargs):
     return jwt_encode_uid(user.service_user.id, target, *args, **kwargs)
 
@@ -42,7 +50,7 @@ def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
         raise ValueError("Must specify target's algorithm")
     if 'AUDIENCE' not in target:
         raise ValueError("Must specify target's audience")
-    if not auth_settings.JWT_ISSUER:
+    if 'ISSUER' not in target:
         raise ValueError("Must specify issuer name")
     if 'KEY_ID' in target:
         headers['kid'] = target['KEY_ID']
@@ -61,7 +69,7 @@ def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
         'exp': expiration_time,
         'nbf': not_before,
         'iat': datetime.utcnow(),
-        'iss': auth_settings.JWT_ISSUER,
+        'iss': target["ISSUER"],
         'aud': target['AUDIENCE']
     }
 
@@ -78,7 +86,7 @@ def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
 DEFAULT_LEEWAY = 5000
 
 
-def jwt_decode_token(token):
+def jwt_decode_token(token, signer_settings=auth_settings):
     options = {
         'verify_exp': True,
         'verify_iss': True,
@@ -87,28 +95,28 @@ def jwt_decode_token(token):
         'verify_iat': True
     }
 
-    if not auth_settings.JWT_VERIFICATION_KEY:
+    if not signer_settings.JWT_VERIFICATION_KEY:
         raise ValueError("Must specify verification key")
 
     payload = jwt.decode(
         token,
-        auth_settings.JWT_VERIFICATION_KEY,
+        signer_settings.JWT_VERIFICATION_KEY,
         options=options,
-        leeway=getattr(auth_settings, 'JWT_LEEWAY', DEFAULT_LEEWAY),
-        audience=auth_settings.JWT_AUDIENCE,
-        issuer=auth_settings.JWT_ISSUER,
-        algorithms=[auth_settings.JWT_ALGORITHM]
+        leeway=getattr(signer_settings, 'JWT_LEEWAY', DEFAULT_LEEWAY),
+        audience=signer_settings.JWT_AUDIENCE,
+        issuer=signer_settings.JWT_ISSUER,
+        algorithms=[signer_settings.JWT_ALGORITHM]
     )
 
-    if (hasattr(auth_settings, 'JWT_MAX_VALID_INTERVAL')):
+    if (hasattr(signer_settings, 'JWT_MAX_VALID_INTERVAL')):
 
         exp = int(payload['exp'])
         nbf = int(payload['nbf'])
 
-        if (exp - nbf > int(auth_settings.JWT_MAX_VALID_INTERVAL)):
+        if (exp - nbf > int(signer_settings.JWT_MAX_VALID_INTERVAL)):
             raise ValidIntervalError(exp,
                                      nbf,
-                                     auth_settings.JWT_MAX_VALID_INTERVAL)
+                                     signer_settings.JWT_MAX_VALID_INTERVAL)
     return payload
 
 
