@@ -44,7 +44,7 @@ def pytest_configure():
         PASSWORD_HASHERS=(
             'django.contrib.auth.hashers.MD5PasswordHasher',
         ),
-        AUTH_SERVER={
+        SERVICES_AUTH={
             'JWT_VERIFICATION_KEY': 'bn4J/xOrd3kIcTT6mmhNC4kXlECLQNUEYH/cLsuiZw/TkeHYcM82zzNkFa0FfmID8eO2Qmbw5lSgEsPv2ARzmhCxgRA4seWLaylVNc7x3skWe85kGCQPR/qSLtnzaWAaeRRX3zAv7ZWmpIvAzp3ruuJbzXS83rJ9vfJf4N+FG7PHJDV34kFC0240Y4IcBFkwz+qMm9F2NRWzErGhK/9DfW6LL6kSHlRploxCP/wSmPX6jDsI8XNYTjCJdmUNLWHKKOj75gMAOyK1Q3hocwtuzwkIBcOKgckPhi2WPtcHos04aKi97I3FM5869zMk5/YCvmZs/ktAlYwYok4X/UHZZw==',
             'JWT_ALGORITHM': 'HS256',
             'JWT_AUDIENCE': 'audience',

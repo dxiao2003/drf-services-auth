@@ -6,7 +6,7 @@ from django.conf import settings as django_settings
 
 from rest_framework.settings import APISettings
 
-USER_SETTINGS = getattr(django_settings, 'AUTH_SERVER', None)
+USER_SETTINGS = getattr(django_settings, 'SERVICES_AUTH', None)
 
 DEFAULT_SETTINGS = {
     # key must be either in base64 encoding for symmetric or X509 for public-key
