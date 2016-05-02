@@ -86,7 +86,7 @@ def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
 DEFAULT_LEEWAY = 5000
 
 
-def jwt_decode_token(token, signer_settings=auth_settings):
+def jwt_decode_token(token, verify_settings=auth_settings):
     options = {
         'verify_exp': True,
         'verify_iss': True,
@@ -95,28 +95,28 @@ def jwt_decode_token(token, signer_settings=auth_settings):
         'verify_iat': True
     }
 
-    if not signer_settings.JWT_VERIFICATION_KEY:
+    if not verify_settings.JWT_VERIFICATION_KEY:
         raise ValueError("Must specify verification key")
 
     payload = jwt.decode(
         token,
-        signer_settings.JWT_VERIFICATION_KEY,
+        verify_settings.JWT_VERIFICATION_KEY,
         options=options,
-        leeway=getattr(signer_settings, 'JWT_LEEWAY', DEFAULT_LEEWAY),
-        audience=signer_settings.JWT_AUDIENCE,
-        issuer=signer_settings.JWT_ISSUER,
-        algorithms=[signer_settings.JWT_ALGORITHM]
+        leeway=getattr(verify_settings, 'JWT_LEEWAY', DEFAULT_LEEWAY),
+        audience=verify_settings.JWT_AUDIENCE,
+        issuer=verify_settings.JWT_ISSUER,
+        algorithms=[verify_settings.JWT_ALGORITHM]
     )
 
-    if (hasattr(signer_settings, 'JWT_MAX_VALID_INTERVAL')):
+    if (hasattr(verify_settings, 'JWT_MAX_VALID_INTERVAL')):
 
         exp = int(payload['exp'])
         nbf = int(payload['nbf'])
 
-        if (exp - nbf > int(signer_settings.JWT_MAX_VALID_INTERVAL)):
+        if (exp - nbf > int(verify_settings.JWT_MAX_VALID_INTERVAL)):
             raise ValidIntervalError(exp,
                                      nbf,
-                                     signer_settings.JWT_MAX_VALID_INTERVAL)
+                                     verify_settings.JWT_MAX_VALID_INTERVAL)
     return payload
 
 
