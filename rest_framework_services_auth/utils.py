@@ -85,6 +85,14 @@ def jwt_encode_uid(uid, target, expiration_time=None, not_before=None,
 
 DEFAULT_LEEWAY = 5000
 
+class Struct(object):
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+
+
+def load_verify_settings_from_dict(settings):
+    return Struct(**settings)
+
 
 def jwt_decode_token(token, verify_settings=auth_settings):
     options = {
