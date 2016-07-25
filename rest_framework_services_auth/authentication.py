@@ -84,7 +84,6 @@ class ServiceJSONWebTokenAuthentication(BaseAuthentication):
         Returns an active user that matches the payload's user id and email.
         """
         User = get_user_model()
-        ServiceUser = get_service_user_model()
         service_user_id = payload.get('uid', None)
 
         if not service_user_id:
@@ -92,12 +91,11 @@ class ServiceJSONWebTokenAuthentication(BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
 
         try:
-            user = get_user_model().objects.get(service_user__pk=service_user_id)
+            user = get_user_model().objects\
+                .get(service_user__pk=service_user_id)
         except User.DoesNotExist:
-            with transaction.atomic():
-                username = encode_username(service_user_id)
-                user = User.objects.create_user(username=username)
-                ServiceUser.objects.create(id=service_user_id, user=user)
+            service_user = create_service_user(service_user_id)
+            user = service_user.user
 
         if not user.is_active:
             msg = _('User account is disabled.')
@@ -105,3 +103,10 @@ class ServiceJSONWebTokenAuthentication(BaseAuthentication):
 
         return user
 
+
+def create_service_user(service_user_id):
+    ServiceUser = get_service_user_model()
+    with transaction.atomic():
+        username = encode_username(service_user_id)
+        user = get_user_model().objects.create_user(username=username)
+        ServiceUser.objects.create(id=service_user_id, user=user)
