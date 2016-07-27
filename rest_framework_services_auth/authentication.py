@@ -109,4 +109,4 @@ def create_service_user(service_user_id):
     with transaction.atomic():
         username = encode_username(service_user_id)
         user = get_user_model().objects.create_user(username=username)
-        ServiceUser.objects.create(id=service_user_id, user=user)
+        return ServiceUser.objects.create(id=service_user_id, user=user)
