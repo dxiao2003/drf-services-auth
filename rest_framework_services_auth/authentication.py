@@ -52,6 +52,16 @@ class ServiceJSONWebTokenAuthentication(BaseAuthentication):
         return (user, jwt_value)
 
     def get_jwt_value(self, request):
+        return self.get_jwt_value_from_auth(request) or \
+               self.get_jwt_value_from_alternate(request)
+
+    def get_jwt_value_from_alternate(self, request):
+        if auth_settings.JWT_ALTERNATE_AUTH_HEADER_KEY:
+            return request.META.get(auth_settings.JWT_ALTERNATE_AUTH_HEADER_KEY)
+        else:
+            return None
+
+    def get_jwt_value_from_auth(self, request):
         auth = get_authorization_header(request).split()
         auth_header_prefix = auth_settings.JWT_AUTH_HEADER_PREFIX.lower()
 

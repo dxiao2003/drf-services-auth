@@ -15,6 +15,7 @@ DEFAULT_SETTINGS = {
     'JWT_AUDIENCE': '',
     'JWT_ISSUER': '',
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
+    'JWT_ALTERNATE_AUTH_HEADER': None,
     'SERVICE_USER_MODEL': 'rest_framework_services_auth.ServiceUser'
 }
 
@@ -28,3 +29,9 @@ if auth_settings.JWT_ALGORITHM.startswith("HS"):
     # try to decode verification from Base64 if possible
     auth_settings.JWT_VERIFICATION_KEY = \
         base64.b64decode(auth_settings.JWT_VERIFICATION_KEY)
+
+if auth_settings.JWT_ALTERNATE_AUTH_HEADER:
+    auth_settings.JWT_ALTERNATE_AUTH_HEADER_KEY = 'HTTP_' + \
+        auth_settings.JWT_ALTERNATE_AUTH_HEADER.upper().replace('-', '_')
+else:
+    auth_settings.JWT_ALTERNATE_AUTH_HEADER_KEY = None
