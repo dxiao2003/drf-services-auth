@@ -114,8 +114,8 @@ class ServiceJSONWebTokenAuthentication(BaseAuthentication):
         return user
 
 
-def create_service_user(service_user_id):
-    ServiceUser = get_service_user_model()
+def create_service_user(service_user_id, ServiceUser=None):
+    ServiceUser = ServiceUser or get_service_user_model()
     with transaction.atomic():
         username = encode_username(service_user_id)
         user = get_user_model().objects.create_user(username=username)
