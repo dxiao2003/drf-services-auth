@@ -56,7 +56,7 @@ def get_package_data(package):
             if not os.path.exists(os.path.join(dirpath, '__init__.py'))]
 
     filepaths = []
-    for base, filenames in walk:
+    for base, filenames in walk: bbbb
         filepaths.extend([os.path.join(base, filename)
                           for filename in filenames])
     return {package: filepaths}
