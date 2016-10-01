@@ -2,7 +2,10 @@ from __future__ import absolute_import, unicode_literals
 
 from django.contrib import admin
 
+from rest_framework_services_auth.models import ServiceUser
 
+
+@admin.register(ServiceUser)
 class ServiceUserAdmin(admin.ModelAdmin):
     list_display = ("id", "user")
     fields = ("id", "user")
