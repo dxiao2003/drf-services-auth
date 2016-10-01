@@ -24,5 +24,9 @@ class ServiceUserMixin(models.Model):
 
 
 class ServiceUser(ServiceUserMixin):
+
+    def __str__(self):
+        return str(self.id) + " (%s)" % self.user
+
     class Meta:
         app_label = 'rest_framework_services_auth'
