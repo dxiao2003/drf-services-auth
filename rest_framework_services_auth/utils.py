@@ -95,7 +95,9 @@ def load_verify_settings_from_dict(settings):
     return Struct(**settings)
 
 
-def jwt_decode_token(token, verify_settings=auth_settings):
+def jwt_decode_token(token,
+                     verify_settings=auth_settings,
+                     override_options=None):
     options = {
         'verify_exp': True,
         'verify_iss': True,
@@ -103,6 +105,9 @@ def jwt_decode_token(token, verify_settings=auth_settings):
         'verify_nbf': True,
         'verify_iat': True
     }
+
+    if override_options:
+        options.update(override_options)
 
     if not verify_settings.JWT_VERIFICATION_KEY:
         raise ValueError("Must specify verification key")
