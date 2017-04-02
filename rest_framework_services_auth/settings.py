@@ -16,6 +16,7 @@ DEFAULT_SETTINGS = {
     'JWT_ISSUER': '',
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_ALTERNATE_AUTH_HEADER': None,
+    'JWT_USE_ALTERNATE_AUTH_HEADER': False,
     'SERVICE_USER_MODEL': 'rest_framework_services_auth.ServiceUser'
 }
 
