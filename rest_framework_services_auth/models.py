@@ -17,7 +17,9 @@ class ServiceUserMixin(models.Model):
     """
 
     id = UUIDField(default=uuid4, primary_key=True)
-    user = models.OneToOneField(AUTH_USER_MODEL, related_name="service_user")
+    user = models.OneToOneField(AUTH_USER_MODEL,
+                                on_delete=models.CASCADE,
+                                related_name="service_user")
 
     class Meta:
         abstract = True
