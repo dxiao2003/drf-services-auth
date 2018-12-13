@@ -32,10 +32,7 @@ DEFAULT_EXPIRATION_DELAY = 15 * 60  # 15 minutes
 
 
 def encode_username(service_user_id):
-    return base64.b64encode(
-        str(service_user_id).replace('-', '').decode("hex"),
-        altchars=str("+-")
-    ).replace("=", "")
+    return str(service_user_id)
 
 
 def jwt_encode_user(user, target, *args, **kwargs):
